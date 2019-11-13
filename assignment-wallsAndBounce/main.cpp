@@ -61,7 +61,7 @@ int main( int argc, char *argv[] ){
 	rectangle bottomWall(	sf::Vector2f{ 640, 10 },	sf::Vector2f{ 0,	470	},		sf::Color::Red	);
 	rectangle upperWall(	sf::Vector2f{ 640, 10 },	sf::Vector2f{ 0,	0 	},		sf::Color::Blue	);
 	rectangle box(	sf::Vector2f{ 100, 100 },	sf::Vector2f{ 300,	200 },		sf::Color::Green	);
-	circle ball(	sf::Vector2f{ 100, 100 },	sf::Vector2f{ 100,	100 },		sf::Color::Green	,sf::Vector2f{ 1,	-1 });
+	circle ball(	sf::Vector2f{ 100, 100 },	sf::Vector2f{ 100,	100 },		sf::Color::Green	,sf::Vector2f{ -1,	-1 });
 
 	std::array<drawable*, 4> staticShapes={ 
 		&leftWall, 
@@ -91,16 +91,19 @@ int main( int argc, char *argv[] ){
 		}
 		box.draw(window);
 		ball.update();
-		if(ball.overlap(box) ){
-			ball.moveBack();
-			ball.interact();
-		}
+		
+		//if() ){
+		//	ball.moveBack();
+		//	ball.interact();
+		//}
+		ball.overlap(box);
 		ball.draw(window);
+		
 		//-----------------------------
 
 		for( auto & shape : staticShapes){
 			if(box.overlap(*shape)){	box.moveBack();	}
-			if(ball.overlap(*shape)){	ball.moveBack();	ball.interact(); }
+			ball.overlap(*shape);
 			shape->draw(window);
 		}
 

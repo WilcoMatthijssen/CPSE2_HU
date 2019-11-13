@@ -18,16 +18,57 @@ public:
 		circle.setPosition(position);
 		window.draw(circle);
 	}
+	void overlap(drawable & other){
+		sf::RectangleShape tempShape;
+		sf::RectangleShape otherShape (	other.size );
+		otherShape.setPosition(other.position);
+		
+		tempShape.setSize (sf::Vector2f{ 75, 10 }	 );
+		tempShape.setPosition(sf::Vector2f{ position.x+25, position.y });
+		if( tempShape.getGlobalBounds().intersects(	otherShape.getGlobalBounds()) ){
+			speed.y*=-1;
+			moveBack();
+			std::cout<<"1"<<std::endl;
+		}
 
+		tempShape.setSize  (sf::Vector2f{ 75, 10 }	 );
+		tempShape.setPosition(sf::Vector2f{ position.x+25, position.y+90 });
+		if( tempShape.getGlobalBounds().intersects(	otherShape.getGlobalBounds()) ){
+			speed.y*=-1;
+			std::cout<<"2"<<std::endl;
+			moveBack();
+		}
+
+		tempShape.setSize  (sf::Vector2f{ 10,75 }	 );
+		tempShape.setPosition(sf::Vector2f{ position.x+91, position.y+25 });
+		if( tempShape.getGlobalBounds().intersects(otherShape.getGlobalBounds()) ){
+			speed.x*=-1;
+			moveBack();
+			std::cout<<"3"<<std::endl; 
+			
+		}
+
+		
+		tempShape.setSize (sf::Vector2f{ 10,75}	 );
+		tempShape.setPosition(sf::Vector2f{ position.x, position.y+25 });
+		if( tempShape.getGlobalBounds().intersects(	otherShape.getGlobalBounds()) ){
+			speed.x*=-1;
+			std::cout<<"4"<<std::endl;
+			moveBack();
+		}
+
+
+
+	
+	}
+
+	
 	void update(){
 		oldPosition=position;
 		position += speed;
 	}
 
-	void interact(){
-		//speed.x*=-1;
-		speed.y*=-1;
-	}
+	
 };
 
 #endif /* CIRCLE_HPP */

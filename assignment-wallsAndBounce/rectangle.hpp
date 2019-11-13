@@ -15,6 +15,14 @@ public:
 		wallShape.setFillColor(color);
 		window.draw(wallShape);
 	}
+	bool overlap(drawable & other){
+		sf::RectangleShape tempShape (	size );
+		tempShape.setPosition(position);
+		sf::RectangleShape otherShape (	other.size );
+		otherShape.setPosition(other.position);
+		bool result =tempShape.getGlobalBounds().intersects(	otherShape.getGlobalBounds()	);
+		return result;
+	}
 	
 };
 
