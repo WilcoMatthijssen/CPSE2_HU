@@ -6,56 +6,48 @@
 class circle: public drawable{
 private:
 	sf::Vector2f speed;
+	sf::Image emoji;
 public:
 	circle(sf::Vector2f size, sf::Vector2f position, sf::Color color, sf::Vector2f speed):
 		drawable(size, position, color),
 		speed(speed)
-		{}
+		{//emoji.loadFromMemory("C:/Users/Wilco_Laptop/Desktop/v2cpse2-examples/03-08-array-of-actions/emoji.png",22000);
+		}
 
 	void draw( sf::RenderWindow & window ) override {
 		sf::CircleShape circle;
 		circle.setRadius(size.x/2);
 		circle.setPosition(position);
+		sf::Texture texture;
+		if(!texture.loadFromFile("C:/Users/Wilco_Laptop/Desktop/v2cpse2-examples/03-08-array-of-actions/emoji.png")){
+			std::cout<<"failed"<<std::endl;
+		}
+		circle.setTexture(&texture);
 		window.draw(circle);
 	}
-	void overlap(drawable & other){
+	bool overlap(drawable & other){
+		bool result=false;
 		sf::RectangleShape tempShape;
 		sf::RectangleShape otherShape (	other.size );
 		otherShape.setPosition(other.position);
 		
-		tempShape.setSize (sf::Vector2f{ 75, 10 }	 );
-		tempShape.setPosition(sf::Vector2f{ position.x+25, position.y });
+		tempShape.setSize (sf::Vector2f{ 90, 100 }	 );
+		tempShape.setPosition(sf::Vector2f{ position.x+10, position.y });
 		if( tempShape.getGlobalBounds().intersects(	otherShape.getGlobalBounds()) ){
 			speed.y*=-1;
+			result=true;
 			moveBack();
-			std::cout<<"1"<<std::endl;
-		}
-
-		tempShape.setSize  (sf::Vector2f{ 75, 10 }	 );
-		tempShape.setPosition(sf::Vector2f{ position.x+25, position.y+90 });
-		if( tempShape.getGlobalBounds().intersects(	otherShape.getGlobalBounds()) ){
-			speed.y*=-1;
-			std::cout<<"2"<<std::endl;
-			moveBack();
-		}
-
-		tempShape.setSize  (sf::Vector2f{ 10,75 }	 );
-		tempShape.setPosition(sf::Vector2f{ position.x+91, position.y+25 });
-		if( tempShape.getGlobalBounds().intersects(otherShape.getGlobalBounds()) ){
-			speed.x*=-1;
-			moveBack();
-			std::cout<<"3"<<std::endl; 
-			
 		}
 
 		
-		tempShape.setSize (sf::Vector2f{ 10,75}	 );
+		tempShape.setSize (sf::Vector2f{ 105,75}	 );
 		tempShape.setPosition(sf::Vector2f{ position.x, position.y+25 });
 		if( tempShape.getGlobalBounds().intersects(	otherShape.getGlobalBounds()) ){
 			speed.x*=-1;
-			std::cout<<"4"<<std::endl;
+			result=true;
 			moveBack();
 		}
+		return result;
 
 
 

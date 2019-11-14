@@ -44,7 +44,32 @@ public:
 		}
 	}
 };
+class moveableRectangle: public drawable{
+	private:
+	sf::Texture texture;
+	public:
+	moveableRectangle(sf::Vector2f size, sf::Vector2f position, sf::Color color, sf::Texture texture):
+	drawable(size,  position, color),
+	texture(texture)
+	{}
 
+		bool overlap(drawable & other){
+		sf::RectangleShape tempShape (	size );
+		tempShape.setPosition(position);
+		sf::RectangleShape otherShape (	other.size );
+		otherShape.setPosition(other.position);
+		bool result =tempShape.getGlobalBounds().intersects(	otherShape.getGlobalBounds()	);
+		return result;
+	}
+void draw(sf::RenderWindow & window ) override {
+sf::RectangleShape wallShape (	size );
+		wallShape.setPosition(position);
+		//wallShape.setFillColor(color);
+		
+		wallShape.setTexture(&texture);
+		window.draw(wallShape);
+}
+};
 
 
 
@@ -55,13 +80,14 @@ int main( int argc, char *argv[] ){
 	std::cout << "Starting application 01-05 array of actions\n";
 
 	sf::RenderWindow window{ sf::VideoMode{ 640, 480 }, "SFML window" };
-
+	sf::Texture texture;
+	texture.loadFromFile("C:/Users/Wilco_Laptop/Desktop/v2cpse2-examples/03-08-array-of-actions/B.png");
 	rectangle leftWall(		sf::Vector2f{ 10, 480 },	sf::Vector2f{ 0,	0 	},		sf::Color::Cyan	);
 	rectangle rightWall(	sf::Vector2f{ 10, 480 },	sf::Vector2f{ 630,	0 	},		sf::Color::Magenta	);
 	rectangle bottomWall(	sf::Vector2f{ 640, 10 },	sf::Vector2f{ 0,	470	},		sf::Color::Red	);
 	rectangle upperWall(	sf::Vector2f{ 640, 10 },	sf::Vector2f{ 0,	0 	},		sf::Color::Blue	);
-	rectangle box(	sf::Vector2f{ 100, 100 },	sf::Vector2f{ 300,	200 },		sf::Color::Green	);
-	circle ball(	sf::Vector2f{ 100, 100 },	sf::Vector2f{ 100,	100 },		sf::Color::Green	,sf::Vector2f{ -1,	-1 });
+	moveableRectangle box(	sf::Vector2f{ 100, 100 },	sf::Vector2f{ 300,	200 },		sf::Color::Green, texture	);
+	circle ball(	sf::Vector2f{ 100, 100 },	sf::Vector2f{ 100,	100 },		sf::Color::Green	,sf::Vector2f{ -10,	-10 });
 
 	std::array<drawable*, 4> staticShapes={ 
 		&leftWall, 
@@ -90,20 +116,22 @@ int main( int argc, char *argv[] ){
 			box.moveBack();
 		}
 		box.draw(window);
+		
+		if(ball.overlap(box)){
+			ball.moveBack();
+		}
 		ball.update();
-		
-		//if() ){
-		//	ball.moveBack();
-		//	ball.interact();
-		//}
-		ball.overlap(box);
 		ball.draw(window);
-		
+	
 		//-----------------------------
 
 		for( auto & shape : staticShapes){
-			if(box.overlap(*shape)){	box.moveBack();	}
-			ball.overlap(*shape);
+			if(box.overlap(*shape)){
+				box.moveBack();	
+			}
+			if(ball.overlap(*shape)){
+			ball.moveBack();
+			}
 			shape->draw(window);
 		}
 
