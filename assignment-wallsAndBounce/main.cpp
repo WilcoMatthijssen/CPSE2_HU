@@ -36,6 +36,16 @@ public:
 		),
 		work(work)
 	{}
+
+	action(
+		bool b,
+		std::function< void() > work
+	) :
+		condition(
+			[b]()->bool { return true; }
+		),
+		work(work)
+	{}
 	
 	void operator()() {
 		if (condition()) {
@@ -50,7 +60,7 @@ public:
 int main(int argc, char* argv[]) {
 	std::cout << "Starting application 01-05 array of actions\n";
 
-	sf::RenderWindow window{ sf::VideoMode{ 640, 480 }, "SFML window" };
+	sf::RenderWindow window{ sf::VideoMode{ 1500, 1000 }, "SFML window" };
 
 	sf::Texture textureB;
 	textureB.loadFromFile("C:/Users/Wilco/Desktop/GITHUB/CPSE2_HU/assignment-wallsAndBounce/B.png");
@@ -60,12 +70,18 @@ int main(int argc, char* argv[]) {
 	textureEmoji.loadFromFile("C:/Users/Wilco/Desktop/GITHUB/CPSE2_HU/assignment-wallsAndBounce/emoji.png");
 	moveable_circle ball(sf::Vector2f{ 100, 100 }, sf::Vector2f{ 200,	100 }, sf::Vector2f{ -1,	-1 }, textureEmoji);
 
-	
-	std::array<drawable, 4> walls{ {
-		{{ 10, 480 }, { 0,	0  }, sf::Color::Cyan},
-		{{ 10, 480 }, { 630,0  }, sf::Color::Magenta},
-		{{ 640, 10 }, { 0,	470}, sf::Color::Red},
-		{{ 640, 10 }, { 0,	0  }, sf::Color::Blue}
+	drawable upperWall{ sf::Vector2f{ 10, 1000 }, sf::Vector2f{ 0,	0  }, sf::Color::Cyan };
+	drawable lowerWall{ sf::Vector2f{ 10, 1000 }, sf::Vector2f{ 1490,0  }, sf::Color::Magenta };
+	drawable leftWall{ sf::Vector2f{ 1500, 10 }, sf::Vector2f{ 0,	990}, sf::Color::Red };
+	drawable rightWall{ sf::Vector2f{ 1500, 10 }, sf::Vector2f{ 0,	0  }, sf::Color::Blue };
+
+	std::array<drawable*, 6> walls{ {
+		&ball,
+		&upperWall,
+		&lowerWall,
+		&leftWall,
+		&rightWall,
+		&box
 	} };
 
 	action actions[] = {
@@ -75,7 +91,7 @@ int main(int argc, char* argv[]) {
 		action(sf::Keyboard::Down,  [&]() { box.move(sf::Vector2f(0.0, +1.0)); }),
 		action(sf::Mouse::Left,     [&]() { box.jump(sf::Mouse::getPosition(window)); })
 		/*
-		action(box.collides(walls[0]),[&]() {	box.revert_move(); }),
+		action(box.collides(walls[0]),[&]() {	box.revert_move(); })
 		action(box.collides(walls[1]),[&]() {	box.revert_move(); }),
 		action(box.collides(walls[2]),[&]() {	box.revert_move(); }),
 		action(box.collides(walls[3]),[&]() {	box.revert_move(); }),
@@ -96,27 +112,23 @@ int main(int argc, char* argv[]) {
 		}
 		window.clear();
 
+		ball.update();
 		for (auto& shape : walls) {
-			if (box.collides(shape)) {
+			if (box.position != shape->position
+				&& box.collides(*shape)) {
 				box.revert_move();
 			}
-			if (ball.collides(shape)) {
+			if (ball.position != shape->position
+				&& ball.collides(*shape)) {
 				ball.revert_move();
 			}
-			shape.draw(window);
+			shape->draw(window);
 		}
 
-		if (box.collides(ball)) {
-			box.revert_move();
-		}
+	
+		
 
-		if (ball.collides(box)) {
-			ball.revert_move();
-		}
-		ball.update();
 
-		ball.draw(window);
-		box.draw(window);
 
 		window.display();
 		sf::sleep(sf::milliseconds(2));
