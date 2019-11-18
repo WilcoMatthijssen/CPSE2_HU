@@ -4,8 +4,7 @@
 #include "drawable.hpp"
 #include "circle.hpp"
 #include "rectangle.hpp"
-
-// C:\mingw64\bin\g++.exe -g C:\Users\Wilco\Desktop\GITHUB\CPSE2_HU\assignment-wallsAndBounce\main.cpp -o C:\Users\Wilco\Desktop\GITHUB\CPSE2_HU\assignment-wallsAndBounce\main.exe -IC:/SFML-2.5.1/include -lsfml-system -LC:/SFML-2.5.1/lib -lsfml-graphics -lsfml-window '-I C:/Users/Wilco/Desktop/GITHUB/v2cpse2-examples/01-02-static-ball' ; ./main
+#include <array>
 class action {
 private:
 	std::function< bool() > condition;
@@ -37,7 +36,7 @@ public:
 		),
 		work(work)
 	{}
-
+	
 	void operator()() {
 		if (condition()) {
 			work();
@@ -55,19 +54,19 @@ int main(int argc, char* argv[]) {
 
 	sf::Texture textureB;
 	textureB.loadFromFile("C:/Users/Wilco/Desktop/GITHUB/CPSE2_HU/assignment-wallsAndBounce/B.png");
+	moveable_rectangle box(sf::Vector2f{ 100, 100 }, sf::Vector2f{ 300,	200 },  textureB);
 
 	sf::Texture textureEmoji;
 	textureEmoji.loadFromFile("C:/Users/Wilco/Desktop/GITHUB/CPSE2_HU/assignment-wallsAndBounce/emoji.png");
+	moveable_circle ball(sf::Vector2f{ 100, 100 }, sf::Vector2f{ 200,	100 }, sf::Vector2f{ -1,	-1 }, textureEmoji);
 
-	moveable_rectangle box(sf::Vector2f{ 100, 100 }, sf::Vector2f{ 300,	200 }, sf::Color::Green, textureB);
-	moveable_circle ball(sf::Vector2f{ 100, 100 }, sf::Vector2f{ 100,	100 }, sf::Color::Green, sf::Vector2f{ -10,	-10 }, textureEmoji);
-
-	drawable walls[4] = {
-		{sf::Vector2f{ 10, 480 }, sf::Vector2f{ 0,	0 }, sf::Color::Cyan},
-	{sf::Vector2f{ 10, 480 }, sf::Vector2f{ 630,	0 }, sf::Color::Magenta},
-	{sf::Vector2f{ 640, 10 }, sf::Vector2f{ 0,	470 }, sf::Color::Red},
-	{sf::Vector2f{ 640, 10 }, sf::Vector2f{ 0,	0 }, sf::Color::Blue}
-	};
+	
+	std::array<drawable, 4> walls{ {
+		{{ 10, 480 }, { 0,	0  }, sf::Color::Cyan},
+		{{ 10, 480 }, { 630,0  }, sf::Color::Magenta},
+		{{ 640, 10 }, { 0,	470}, sf::Color::Red},
+		{{ 640, 10 }, { 0,	0  }, sf::Color::Blue}
+	} };
 
 	action actions[] = {
 		action(sf::Keyboard::Left,  [&]() { box.move(sf::Vector2f(-1.0,  0.0)); }),
@@ -75,6 +74,20 @@ int main(int argc, char* argv[]) {
 		action(sf::Keyboard::Up,    [&]() { box.move(sf::Vector2f(0.0, -1.0)); }),
 		action(sf::Keyboard::Down,  [&]() { box.move(sf::Vector2f(0.0, +1.0)); }),
 		action(sf::Mouse::Left,     [&]() { box.jump(sf::Mouse::getPosition(window)); })
+		/*
+		action(box.collides(walls[0]),[&]() {	box.revert_move(); }),
+		action(box.collides(walls[1]),[&]() {	box.revert_move(); }),
+		action(box.collides(walls[2]),[&]() {	box.revert_move(); }),
+		action(box.collides(walls[3]),[&]() {	box.revert_move(); }),
+		action(box.collides(ball),	  [&]() {	box.revert_move(); }),
+		action( true ) [&]() { ball.update(); box.draw(); }),
+		action(ball.collides(walls[0]),[&]() {	ball.revert_move(); }),
+		action(ball.collides(walls[1]),[&]() {	ball.revert_move(); }),
+		action(ball.collides(walls[2]),[&]() {	ball.revert_move(); }),
+		action(ball.collides(walls[3]),[&]() {	ball.revert_move(); }),
+		action(ball.collides(box),     [&]() {	ball.revert_move(); }),
+		action( true ) [&]() { walls[0].draw(); walls[1].draw(); walls[2].draw(); walls[3].draw(); ball.draw(); })
+		*/
 	};
 
 	while (window.isOpen()) {
@@ -82,9 +95,6 @@ int main(int argc, char* argv[]) {
 			action();
 		}
 		window.clear();
-
-		
-		
 
 		for (auto& shape : walls) {
 			if (box.collides(shape)) {
@@ -109,7 +119,7 @@ int main(int argc, char* argv[]) {
 		box.draw(window);
 
 		window.display();
-		sf::sleep(sf::milliseconds(20));
+		sf::sleep(sf::milliseconds(2));
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
