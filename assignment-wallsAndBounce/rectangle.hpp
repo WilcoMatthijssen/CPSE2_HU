@@ -1,40 +1,42 @@
 #ifndef RECTANGLE_HPP
 #define RECTANGLE_HPP
 #include "drawable.hpp"
+//	---MOVEABLE_RECTANGLE---
+//	This class inherits the draw functionality from drawable and adds functions to make the rectangle moveable.
+//
 class moveable_rectangle : public drawable {
 protected:
-	sf::Vector2f new_position;
+	sf::Vector2f old_position;
 	const sf::Texture texture;
 public:
-	moveable_rectangle(sf::Vector2f size, sf::Vector2f position,  sf::Texture texture) :
+	moveable_rectangle(sf::Vector2f size, sf::Vector2f position, sf::Texture texture) :
 		drawable(size, position),
 		texture(texture),
-		new_position(position)
+		old_position(position)
 	{}
 
-	virtual const bool collides(drawable& other) {
+	virtual const bool intersects(drawable& other) {
 		sf::RectangleShape tempShape(size);
-		tempShape.setPosition(new_position);
+		tempShape.setPosition(position);
 		sf::RectangleShape otherShape(other.size);
 		otherShape.setPosition(other.position);
-		bool result = tempShape.getGlobalBounds().intersects(otherShape.getGlobalBounds());
-		return result;
+		return tempShape.getGlobalBounds().intersects(otherShape.getGlobalBounds());
 	}
 
 	void draw(sf::RenderWindow& window)override {
-		position = new_position;
+		old_position = position;
 		sf::RectangleShape renderShape(size);
-		renderShape.setPosition(new_position);
+		renderShape.setPosition(position);
 		renderShape.setTexture(&texture);
 		window.draw(renderShape);
 	}
 
 	void move(sf::Vector2f delta) {
-		new_position += delta;
+		position += delta;
 	}
 
 	void jump(sf::Vector2f target) {
-		new_position = target;
+		position = target;
 	}
 
 	void jump(const sf::Vector2i target) {
@@ -45,7 +47,7 @@ public:
 	}
 
 	void revert_move() {
-		new_position = position;
+		position = old_position;
 	}
 
 };
