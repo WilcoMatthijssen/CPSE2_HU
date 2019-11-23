@@ -1,7 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include "drawable.hpp"
-#include "moveable.hpp"
+
 #include "shapeControl.hpp"
 #include <array>
 
@@ -9,24 +8,29 @@ int main(int argc, char* argv[]) {
 	uint_fast16_t sizeX = 500;
 	uint_fast16_t sizeY = 500;
 	sf::RenderWindow window{ sf::VideoMode{ sizeX, sizeY }, "SFML window" };
-	shapeControl config("configFile.txt");
-
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Green);
-
-	
+	shapeControl control("configFile.txt");
+	circle henk(sf::Vector2f{ 100,100 }, sf::Vector2f{ 100,100 });
+	std::vector<moveable*> vec;
+	vec.push_back(&henk);
 	std::cout << "Starting factory assignment by Wilco" << std::endl;
 	while (window.isOpen()) {
 		window.clear();
 
-		config.moveToSelectedShape(sf::Mouse::getPosition(window));
-		config.draw(window);
-		config.selectShape(0);
-
-	
-		window.draw(shape);
-
-
+		
+		//vec[0]->draw(window);
+		
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+			control.selectShape(sf::Mouse::getPosition(window));
+			
+			
+		}
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+			control.moveToSelectedShape(sf::Mouse::getPosition(window));
+			//std::cout << "move" << std::endl;
+		}
+		
+		control.draw(window);
+		
 		window.display();
 		sf::sleep(sf::milliseconds(20));
 		sf::Event event;

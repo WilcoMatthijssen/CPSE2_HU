@@ -1,9 +1,11 @@
 #ifndef SHAPECONFIG_HPP
 #define SHAPECONFIG_HPP
-
+#include <fstream>
+#include <string>
+#include <iostream>
 #include <vector>
 #include "moveable.hpp"
-#include "drawable.hpp"
+
 
 //	---SHAPECONTROL---
 //	
@@ -11,58 +13,104 @@
 class shapeControl {
 private:
 	const std::string configFile;
-	std::vector<drawable> staticShapes;
-	std::vector<moveable> movingShapes;
+	std::vector<std::string> comments;
+	std::vector<circle> circleShapes;
+	std::vector<moveable*> movingShapes;
 	size_t selectedShapeIndex=0;
 	
-	void loadShapesFromFile(const std::string & fileName) {
+	void loadShapesFromFile() {
+		std::cout << "load" << std::endl;
 		//load shapes from file
 		//vector emplace_back()
+		std::string tekst;
+		std::ifstream inFile;
+		sf::Vector2f size{ 100,100 };
+		sf::Vector2f position{ 100,100 };
+		inFile.open(configFile);
+		char c;
+		while (inFile.get(c)) {
+			switch (c) {
+			case '<':
+				break;
+			}
+		}
+		while (getline(inFile, tekst)) {
+			if (tekst == "circle") {
+				tekst.erase();
+				while (getline(inFile, tekst)) {
+					if (tekst == "size") {
+						std::cout << "size" << std::endl;
+					}
+					if (tekst == "position") {
+						std::cout << "position" << std::endl;
+					}
+					if (tekst == "end") {
+						std::cout << "end" << std::endl;
+						break;
+					}
+					size += { 10, 10 };
+
+					tekst.erase();
+				}
+				circleShapes.push_back(circle(size,position));
+				std::cout << circleShapes.size() << std::endl;
+				movingShapes.push_back(&circleShapes[circleShapes.size()-1]);
+			}
+			comments.push_back(tekst);
+		}
+		inFile.close();
+		std::cout << std::endl;
+		//&circle(sf::Vector2f{ 100,100 }, sf::Vector2f{ 100,100 })
+		//circleShapes.push_back(circle(sf::Vector2f{ 100,100 }, sf::Vector2f{ 100,100 }));
+		//circleShapes.push_back(circle(sf::Vector2f{ 100,100 }, sf::Vector2f{ 100,100 }));
+		//movingShapes.push_back(&circleShapes[0]);
+		//movingShapes.push_back(&circleShapes[1]);
+
+		
+
 	}
-	void storeShapesToFile(const std::string& fileName) {
+	void storeShapesToFile() {
+		std::cout << "store" << std::endl;
 		//store shapes to file
-	}
-	void drawMoveables(sf::RenderWindow& window) {
-		for (auto& shape : movingShapes) {
-			shape.draw(window);
+		std::ofstream openFile;
+		openFile.open(configFile);
+		
+		for (auto& comment : comments) {
+			std::cout << comment << std::endl;
+			openFile << comment<<"\n";
 		}
+		openFile.close();
+
 	}
-	void drawDrawables(sf::RenderWindow& window) {
-		for (auto& shape : staticShapes) {
-			shape.draw(window);
-		}
-	}
+
+	
 	
 public:
-	shapeControl(const std::string configFile) {
-		loadShapesFromFile(configFile);
+	shapeControl(const std::string configFile): configFile(configFile) {
+		loadShapesFromFile();
 	}
 
 	~shapeControl() {
-		loadShapesFromFile(configFile);
+		//storeShapesToFile();
 	}
 	
-	void selectShape(const size_t shapeIndex) {
-		/*
-		//(condition) ? (if_true) : (if_false)
-		(shapeIndex > movingShapes.size()) ?
-			selectedShapeIndex = shapeIndex :
-			selectedShapeIndex = movingShapes.size();
-			*/
-		if (shapeIndex > movingShapes.size()) {
-			selectedShapeIndex = shapeIndex;
-		}
-		else {
-			selectedShapeIndex = movingShapes.size();
+	void selectShape(const sf::Vector2i target) {
+		for (size_t i = 0; i < circleShapes.size(); ++i) {
+			if (circleShapes[i].contains(target)) {
+				circleShapes[selectedShapeIndex].deselect();
+				circleShapes[i].select();
+				selectedShapeIndex = i;
+			}
 		}
 	}
 	void draw(sf::RenderWindow& window) {
-		drawDrawables(window);
-		drawMoveables(window);
+		for (auto& shape : circleShapes) {
+			shape.draw(window);
+		}
 	}
 	void moveToSelectedShape(const sf::Vector2i target) {
-		if (movingShapes.size() > 0) {
-			movingShapes[selectedShapeIndex].moveTo(target);
+		if (circleShapes.size() > 0) {
+			circleShapes[selectedShapeIndex].moveTo(target);
 		}
 	}
 	
