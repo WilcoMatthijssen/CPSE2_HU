@@ -106,13 +106,13 @@ int main(int argc, char* argv[]) {
 
 		ball.update();
 		for (auto& shape : walls) {
-			if (box.position != shape->position
+			if (box.getBounds() != shape->getBounds()
 				&& box.intersects(*shape)) {
 				box.revert_move();
 			}
-			if (ball.position != shape->position
+			if (ball.getBounds() != shape->getBounds()
 				&& ball.intersects(*shape)) {
-				ball.revert_move();
+				// ball.revert_move();
 			}
 			shape->draw(window);
 		}

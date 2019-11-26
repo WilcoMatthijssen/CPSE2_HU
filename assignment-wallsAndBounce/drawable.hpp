@@ -6,22 +6,21 @@
 //
 class drawable {
 protected:
-	const sf::Color color;
+	sf::RectangleShape rectangle;
 public:
-	sf::Vector2f position;
-	const sf::Vector2f size;
 
 	drawable(sf::Vector2f size, sf::Vector2f position, sf::Color color = sf::Color::White) :
-		position(position),
-		size(size),
-		color(color)
-	{}
+		rectangle(size)
+	{
+		rectangle.setPosition(position);
+		rectangle.setFillColor(color);
+	}
 
 	virtual void draw(sf::RenderWindow& window) {
-		sf::RectangleShape renderShape(size);
-		renderShape.setPosition(position);
-		renderShape.setFillColor(color);
-		window.draw(renderShape);
+		window.draw(rectangle);
+	}
+	virtual sf::FloatRect getBounds() {
+		return rectangle.getGlobalBounds();
 	}
 };
 #endif /* DRAWABLE_HPP */

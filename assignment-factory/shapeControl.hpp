@@ -5,82 +5,76 @@
 #include <iostream>
 #include <vector>
 #include "moveable.hpp"
-
-
+#define ever (;;)
 //	---SHAPECONTROL---
 //	
 //
 class shapeControl {
 private:
 	const std::string configFile;
-	std::vector<std::string> comments;
 	std::vector<circle> circleShapes;
-	std::vector<moveable*> movingShapes;
+	std::vector<screenObject*> movingShapes;
 	size_t selectedShapeIndex=0;
 	
+	screenObject *readScreenObject(std::ifstream & input) {
+		sf::Vector2f position;
+		std::string	 name;
+		std::string path;
+		float radius;
+		sf::Vector2f size;
+		uint_fast32_t color;
+		input >> position.x >> position.y >> name;
+		if (name == "circle") {
+			input >> radius >> color;
+			std::cout << "create " << name <<" "<< position.x << " " << position.y << " " << radius << " " << color<< std::endl;
+			return new circle(radius, position, color);
+		}
+		else if (name == "rectangle") {
+			input >> size.x >> size.y >> color;
+			return new rectangle(size, position);
+		}
+		else if (name == "picture") {
+			input >> size.x >> size.y >> path;
+			return new picture(size, position, path);
+		}
+		else if(name == "") {
+			throw 10;
+			//throw endOfFile();
+		}
+		else {
+			throw 11;
+			//throw shapeUnknown(name);
+		}
+	}
+
+
 	void loadShapesFromFile() {
 		std::cout << "load" << std::endl;
-		//load shapes from file
-		//vector emplace_back()
-		std::string tekst;
+
 		std::ifstream inFile;
-		sf::Vector2f size{ 100,100 };
-		sf::Vector2f position{ 100,100 };
 		inFile.open(configFile);
-		char c;
-		while (inFile.get(c)) {
-			switch (c) {
-			case '<':
+		for ever{
+			try {
+				movingShapes.push_back(readScreenObject(inFile));
+			}
+
+			catch (int e) {
 				break;
 			}
 		}
-		while (getline(inFile, tekst)) {
-			if (tekst == "circle") {
-				tekst.erase();
-				while (getline(inFile, tekst)) {
-					if (tekst == "size") {
-						std::cout << "size" << std::endl;
-					}
-					if (tekst == "position") {
-						std::cout << "position" << std::endl;
-					}
-					if (tekst == "end") {
-						std::cout << "end" << std::endl;
-						break;
-					}
-					size += { 10, 10 };
-
-					tekst.erase();
-				}
-				circleShapes.push_back(circle(size,position));
-				std::cout << circleShapes.size() << std::endl;
-				movingShapes.push_back(&circleShapes[circleShapes.size()-1]);
-			}
-			comments.push_back(tekst);
-		}
+		//movingShapes.push_back(new rectangle( sf::Vector2f{100, 100}, sf::Vector2f{ 100,100 }));
 		inFile.close();
-		std::cout << std::endl;
-		//&circle(sf::Vector2f{ 100,100 }, sf::Vector2f{ 100,100 })
-		//circleShapes.push_back(circle(sf::Vector2f{ 100,100 }, sf::Vector2f{ 100,100 }));
-		//circleShapes.push_back(circle(sf::Vector2f{ 100,100 }, sf::Vector2f{ 100,100 }));
-		//movingShapes.push_back(&circleShapes[0]);
-		//movingShapes.push_back(&circleShapes[1]);
-
-		
-
 	}
+
 	void storeShapesToFile() {
 		std::cout << "store" << std::endl;
-		//store shapes to file
 		std::ofstream openFile;
 		openFile.open(configFile);
-		
-		for (auto& comment : comments) {
-			std::cout << comment << std::endl;
-			openFile << comment<<"\n";
+		for (auto& shape : movingShapes) {
+			openFile << shape<<'/n';
+
 		}
 		openFile.close();
-
 	}
 
 	
@@ -95,25 +89,27 @@ public:
 	}
 	
 	void selectShape(const sf::Vector2i target) {
-		for (size_t i = 0; i < circleShapes.size(); ++i) {
-			if (circleShapes[i].contains(target)) {
-				circleShapes[selectedShapeIndex].deselect();
-				circleShapes[i].select();
+		for (size_t i = 0; i < movingShapes.size(); ++i) {
+			if (movingShapes[i]->contains(target)) {
+				movingShapes[selectedShapeIndex]->deselect();
+				movingShapes[i]->select();
 				selectedShapeIndex = i;
 			}
 		}
 	}
 	void draw(sf::RenderWindow& window) {
-		for (auto& shape : circleShapes) {
-			shape.draw(window);
+		for (auto& shape : movingShapes) {
+			shape->draw(window);
 		}
 	}
 	void moveToSelectedShape(const sf::Vector2i target) {
-		if (circleShapes.size() > 0) {
-			circleShapes[selectedShapeIndex].moveTo(target);
+		if (movingShapes.size() > 0) {
+			movingShapes[selectedShapeIndex]->moveTo(target);
 		}
 	}
 	
 };
+
+
 
 #endif /* SHAPECONFIG_HPP */

@@ -5,13 +5,11 @@
 #include <array>
 
 int main(int argc, char* argv[]) {
-	uint_fast16_t sizeX = 500;
-	uint_fast16_t sizeY = 500;
+	uint_fast16_t sizeX = 1800;
+	uint_fast16_t sizeY = 1000;
 	sf::RenderWindow window{ sf::VideoMode{ sizeX, sizeY }, "SFML window" };
 	shapeControl control("configFile.txt");
-	circle henk(sf::Vector2f{ 100,100 }, sf::Vector2f{ 100,100 });
-	std::vector<moveable*> vec;
-	vec.push_back(&henk);
+
 	std::cout << "Starting factory assignment by Wilco" << std::endl;
 	while (window.isOpen()) {
 		window.clear();
