@@ -2,8 +2,8 @@
 #define MOVEABLE_HPP
 #include <SFML/Graphics.hpp>
 #include <string>
-//	---MOVEABLE---
-//	This class creates a shape which can be drawn and moved.
+/// @brief Base class for screen objects.
+/// @author Wilco Matthijssen
 class screenObject {
 public:
 	virtual void  moveTo(const sf::Vector2i location)		= 0;
@@ -11,24 +11,35 @@ public:
 	virtual void  draw(sf::RenderWindow& window)			= 0;
 	virtual void  select()	= 0;
 	virtual void  deselect()= 0;
+	virtual const std::string whatAmI() { return "am nothing"; };
+	friend std::ostream& operator << (std::ostream& out, screenObject& shape)
+	{
+		out << shape.whatAmI();
+		return out;
+	}
 	
 };
-
+/// @brief Class for drawing rectangles.
+/// @author Wilco Matthijssen
 class rectangle: public screenObject{
 protected:
 	sf::RectangleShape rectShape;
-	const sf::Color color;
+	const uint_fast32_t color;
 public:
-	rectangle(const sf::Vector2f size, sf::Vector2f position, const sf::Color color = sf::Color::White) :
+	/// @brief Construct a rectangle object with given size and position (optional color).
+	///
+	/// @param size			Size of object.
+	/// @param position		Position of object
+	/// @param color		Color of object.
+	/// 
+	rectangle(const sf::Vector2f size, sf::Vector2f position, const uint_fast32_t color = 0xFFFFFFFF) :
 		rectShape(size),
 		color(color)
 	{
 		rectShape.setPosition(position);
-		rectShape.setOutlineThickness(5);
+		rectShape.setFillColor(sf::Color::Color(color));
 	}
-	rectangle(sf::Vector2f position) {
-		rectShape.setPosition(position);
-	}
+
 	void moveTo(const sf::Vector2i target) override{
 		rectShape.setPosition(sf::Vector2f(
 			static_cast<float>(target.x - (rectShape.getSize().x / 2)),
@@ -41,11 +52,11 @@ public:
 	}
 
 	void select() override{
-		rectShape.setOutlineColor(sf::Color::Red);	
+		rectShape.setOutlineColor(sf::Color::Color(~color | 0xFF));
 	}
 
 	void deselect() override{
-		rectShape.setOutlineColor(color);
+		rectShape.setOutlineColor(sf::Color::Color(color));
 	}
 
 	const bool contains(const sf::Vector2i target) override{
@@ -58,35 +69,52 @@ public:
 
 };
 
-//	---CIRCLE---
-//	This class inherits the functionality from moveable and makes the shape a circle.
+/// @brief Class for drawing circles.
+/// @author Wilco Matthijssen
 class circle: public screenObject {
 private:
 	sf::CircleShape circShape;
 	const uint_fast32_t color;
 public:
-	circle(const float size, const sf::Vector2f position, const uint_fast32_t color= 0xFF00FFFF):
+	/// @brief Construct a circle object with given size and position (optional color).
+	///
+	/// @param size			Size of object.
+	/// @param position		Position of object
+	/// @param color		Color of object.
+	/// 
+	circle(const float size, const sf::Vector2f position, const uint_fast32_t color= 0xFFFFFFFF):
 		circShape(size),
 		color(color)
 	{
 		circShape.setPosition(position);
 		circShape.setFillColor(sf::Color::Color(color));
-		circShape.setOutlineThickness(5);
-		circShape.setOutlineColor(sf::Color::Color(color));
-		
 	}
-
-
+	const std::string whatAmI() override {
+		std::string sentence = std::to_string(circShape.getPosition().x) + ' ';
+		sentence += std::to_string(circShape.getPosition().y);
+		sentence += " circle ";
+		sentence += std::to_string(circShape.getRadius())+' ';
+		sentence += std::to_string(color);
+		return sentence;
+	}
+	/*	out << shape.getPosition().x << ' '<<shape.getPosition().y;
+		out << ' ' << "string";
+		out << ' ' << shape.getRadius();
+		out << ' ' << shape.getColor();
+		return out;
+	}*/
+	
+	
 	void draw(sf::RenderWindow& window) override {
 		window.draw(circShape);
 	}
 
 	void select() override {
-		circShape.setOutlineColor(sf::Color::Red);
+		circShape.setFillColor(sf::Color::Color(~color | 0xFF));
 	}
 
 	void deselect() override{
-		circShape.setOutlineColor(sf::Color::Color(color));
+		circShape.setFillColor(sf::Color::Color(color));
 	}
 	const bool contains(const sf::Vector2i target) override {
 		return  circShape.getGlobalBounds().contains(sf::Vector2f(
@@ -109,12 +137,18 @@ public:
 
 
 
-//	---PICTURE---
-//	This class inherits the functionality from moveable and makes the shape a picture.
+/// @brief Class for drawing pictures.
+/// @author Wilco Matthijssen
 class picture : public rectangle {
 private:
 	sf::Texture texture;
 public:
+	/// @brief Construct a rectangle object with given size and position and path.
+	///
+	/// @param size			Size of object.
+	/// @param position		Position of object
+	/// @param path			Path to texture file.
+	/// 
 	picture(const sf::Vector2f size, const sf::Vector2f position, const std::string path) :
 		rectangle(size,position)
 		
@@ -122,9 +156,10 @@ public:
 		texture.loadFromFile(path);
 		rectShape.setTexture(&texture);
 	}
-	picture(const sf::Vector2f position):
-		rectangle(position)
-	{	}
+
+	void select() override{
+		rectShape.setFillColor(sf::Color::Red);
+	}
 	void draw(sf::RenderWindow& window) override {
 		rectShape.setTexture(&texture);
 		window.draw(rectShape);

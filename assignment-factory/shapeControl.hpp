@@ -1,112 +1,64 @@
 #ifndef SHAPECONFIG_HPP
 #define SHAPECONFIG_HPP
-#include <fstream>
-#include <string>
-#include <iostream>
+
 #include <vector>
-#include "moveable.hpp"
-#define ever (;;)
-//	---SHAPECONTROL---
-//	
-//
+#include "screenObject.hpp"
+
+
+/// @brief Class for controlling shapes.
+/// @author Wilco Matthijssen
 class shapeControl {
 private:
 	const std::string configFile;
-	std::vector<circle> circleShapes;
 	std::vector<screenObject*> movingShapes;
 	size_t selectedShapeIndex=0;
 	
-	screenObject *readScreenObject(std::ifstream & input) {
-		sf::Vector2f position;
-		std::string	 name;
-		std::string path;
-		float radius;
-		sf::Vector2f size;
-		uint_fast32_t color;
-		input >> position.x >> position.y >> name;
-		if (name == "circle") {
-			input >> radius >> color;
-			std::cout << "create " << name <<" "<< position.x << " " << position.y << " " << radius << " " << color<< std::endl;
-			return new circle(radius, position, color);
-		}
-		else if (name == "rectangle") {
-			input >> size.x >> size.y >> color;
-			return new rectangle(size, position);
-		}
-		else if (name == "picture") {
-			input >> size.x >> size.y >> path;
-			return new picture(size, position, path);
-		}
-		else if(name == "") {
-			throw 10;
-			//throw endOfFile();
-		}
-		else {
-			throw 11;
-			//throw shapeUnknown(name);
-		}
-	}
+	/// @brief	Read screenObject from ifstream.
+	///
+	/// @param	input Where to read screenObject out of.
+	/// @return	screenObject* pointer of new screenObject.
+	///
+	screenObject* readScreenObject(std::ifstream& input);
 
+	/// @brief Construct all shapes from configFile.
+	/// 
+	void loadShapesFromFile();
 
-	void loadShapesFromFile() {
-		std::cout << "load" << std::endl;
+	/// @brief store all screenObject to a configFile
+	///
+	void storeShapesToFile();
 
-		std::ifstream inFile;
-		inFile.open(configFile);
-		for ever{
-			try {
-				movingShapes.push_back(readScreenObject(inFile));
-			}
-
-			catch (int e) {
-				break;
-			}
-		}
-		//movingShapes.push_back(new rectangle( sf::Vector2f{100, 100}, sf::Vector2f{ 100,100 }));
-		inFile.close();
-	}
-
-	void storeShapesToFile() {
-		std::cout << "store" << std::endl;
-		std::ofstream openFile;
-		openFile.open(configFile);
-		for (auto& shape : movingShapes) {
-			openFile << shape<<'/n';
-
-		}
-		openFile.close();
-	}
-
-	
-	
 public:
-	shapeControl(const std::string configFile): configFile(configFile) {
-		loadShapesFromFile();
-	}
+	/// @brief Construct all shapes from file.
+	///
+	/// @param configFile File path to file containing shape config
+	/// 
+	shapeControl(const std::string configFile);
 
-	~shapeControl() {
-		//storeShapesToFile();
-	}
+	/// @brief Deconstruct by writing all screenObject to a file
+	///
+	~shapeControl();
 	
-	void selectShape(const sf::Vector2i target) {
-		for (size_t i = 0; i < movingShapes.size(); ++i) {
-			if (movingShapes[i]->contains(target)) {
-				movingShapes[selectedShapeIndex]->deselect();
-				movingShapes[i]->select();
-				selectedShapeIndex = i;
-			}
-		}
-	}
-	void draw(sf::RenderWindow& window) {
-		for (auto& shape : movingShapes) {
-			shape->draw(window);
-		}
-	}
-	void moveToSelectedShape(const sf::Vector2i target) {
-		if (movingShapes.size() > 0) {
-			movingShapes[selectedShapeIndex]->moveTo(target);
-		}
-	}
+	/// @brief	Select screenObjects.
+	///
+	/// @param	target x y position of object to select.
+	/// @return	void
+	///
+	void selectShape(const sf::Vector2i target);
+
+	/// @brief	Draw all screenObjects to window
+	///
+	/// @param	window  sf::RenderWindow to draw all screenObjects on.
+	/// @return	void
+	///
+	void draw(sf::RenderWindow& window);
+
+	/// @brief	Draw rectangle to a sf::RenderWindow.
+	///
+	/// @param	target  x y position of where to move selected shape to.
+	/// @return	void
+	///
+	void moveSelectedShape(const sf::Vector2i target);
 	
 };
 

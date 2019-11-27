@@ -14,19 +14,13 @@ int main(int argc, char* argv[]) {
 	while (window.isOpen()) {
 		window.clear();
 
-		
-		//vec[0]->draw(window);
-		
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
 			control.selectShape(sf::Mouse::getPosition(window));
-			
-			
 		}
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-			control.moveToSelectedShape(sf::Mouse::getPosition(window));
-			//std::cout << "move" << std::endl;
+			control.moveSelectedShape(sf::Mouse::getPosition(window));
 		}
-		
+
 		control.draw(window);
 		
 		window.display();
