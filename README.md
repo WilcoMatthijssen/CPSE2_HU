@@ -1,5 +1,5 @@
 # CPSE2_HU
-assingments make for the subject CPSE_HU Hogeschool Utrecht
+assingments made for CPSE_HU Hogeschool Utrecht
 
 ![](https://upload.wikimedia.org/wikipedia/commons/1/18/ISO_C%2B%2B_Logo.svg)
 
